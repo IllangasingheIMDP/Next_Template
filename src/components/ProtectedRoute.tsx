@@ -1,4 +1,6 @@
-import { ReactNode } from "react";
+"use client";
+
+import { ReactNode, useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
@@ -10,15 +12,22 @@ type ProtectedRouteProps = {
 const ProtectedRoute = ({ allowedRoles, children }: ProtectedRouteProps) => {
   const { user } = useAuth();
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
-  if (!user) {
-    router.push("/login"); // Redirect if not logged in
-    return null;
-  }
+  useEffect(() => {
+    // Perform redirection logic after the component mounts
+    console.log("protected route",user);
+    if (!user) {
+      router.push("/login"); // Redirect to login if not authenticated
+    } else if (!allowedRoles.includes(user.role)) {
+      router.push("/unauthorized"); // Redirect to unauthorized if user role is not allowed
+    } else {
+      setLoading(false); // Set loading to false if user is authenticated and authorized
+    }
+  }, [user, allowedRoles, router]);
 
-  if (!allowedRoles.includes(user.role)) {
-    router.push("/unauthorized"); // Redirect if role not allowed
-    return null;
+  if (loading) {
+    return null; // Prevent rendering content while checking auth/role
   }
 
   return <>{children}</>;

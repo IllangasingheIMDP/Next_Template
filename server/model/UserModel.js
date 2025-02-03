@@ -17,6 +17,15 @@ const UserModel = {
         } catch (error) {
             throw error;
         }
+    },
+    getAllUsers:async()=>{
+        try {
+            const query = 'SELECT * FROM user';
+            const [rows] = await pool.execute(query);
+            return rows;
+        } catch (error) {
+            throw error;
+        }
     }
 };
 

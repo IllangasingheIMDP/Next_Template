@@ -55,6 +55,11 @@ const AuthController = {
                 message: "Student Login successful",
                 success: true,
                 accessTokenExpiresIn: 12 * 60 * 60,
+                user:{
+                    username:user.username,
+                    email:user.email,
+                    role:'Admin'
+                }
             });
         } catch (error) {
             res.status(500).send({ message: `Error in login: ${error}` });

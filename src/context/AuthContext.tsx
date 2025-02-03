@@ -1,9 +1,13 @@
+"use client";
 import {createContext,useContext,ReactNode, useState} from 'react';
 type User={
-    id:string;
-    name:string;
+    username:string;
+    email:string;
     role:string;
 } | null
+
+export type UserClass = User;
+
 
 type AuthContextType={
     user:User;
