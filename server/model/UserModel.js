@@ -10,10 +10,10 @@ const UserModel = {
             throw error;
         }
     },
-    createUser: async (username,email,hashedPassword) => {
+    createUser: async (username,email,hashedPassword,role) => {
         try {
-            const query = 'INSERT INTO user (username,email, password) VALUES (?,?, ?)';
-            await pool.execute(query, [username,email, hashedPassword]);
+            const query = 'INSERT INTO user (username,email, password,role) VALUES (?,?, ?,?)';
+            await pool.execute(query, [username,email, hashedPassword,role]);
         } catch (error) {
             throw error;
         }

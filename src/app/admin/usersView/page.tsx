@@ -4,7 +4,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 const page = () => {
   return (
     <ProtectedRoute allowedRoles={["Admin"]}>
-      <div>User View</div>
+      <div className='text-white bg-red-700'>User View</div>
     </ProtectedRoute>
   )
 }

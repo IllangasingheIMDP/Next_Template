@@ -25,14 +25,14 @@ const AuthController = {
 
             // Generate Access Token (short-lived)
             const accessToken = jwt.sign(
-                { username: user.username, email: req.body.email, userType: "student" },
+                { username: user.username, email: req.body.email, userType: user.role },
                 process.env.ACCESS_TOKEN_SECRET,
                 { expiresIn: "12h" } // Expires in 12h
             );
 
             // Generate Refresh Token (long-lived)
             const refreshToken = jwt.sign(
-                { username: user.username, email: req.body.email, userType: "student" },
+                { username: user.username, email: req.body.email, userType: user.role },
                 process.env.REFRESH_TOKEN_SECRET,
                 { expiresIn: "7d" } // Expires in 7 days
             );
@@ -58,7 +58,7 @@ const AuthController = {
                 user:{
                     username:user.username,
                     email:user.email,
-                    role:'Admin'
+                    role:user.role
                 }
             });
         } catch (error) {
@@ -76,7 +76,7 @@ const AuthController = {
             const hashedPassword = await hashPassword(password);
 
             // Save user to DB
-            await UserModel.createUser(username, email, hashedPassword);
+            await UserModel.createUser(username, email, hashedPassword,'User');
 
             res.status(201).json({ message: 'User registered successfully' });
         } catch (error) {
@@ -95,7 +95,7 @@ const AuthController = {
                 user: {
                     username: decoded.username,
                     email: decoded.email,
-                    role: "Admin" //decoded.userType, // Assuming role is stored as userType
+                    role: decoded.userType //decoded.userType, // Assuming role is stored as userType
                 },
             });
         } catch (error) {

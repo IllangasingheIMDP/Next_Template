@@ -1,56 +1,57 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import api from "@/redux/api";
 import { useRouter } from "next/navigation";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/GlobalRedux/store";
-import { useSelector,useDispatch } from "react-redux";
 import { getUserData } from "@/services/loginPageApi";
 import { login } from "@/GlobalRedux/features/userSlice";
+
 type ProtectedRouteProps = {
   allowedRoles: string[];
   children: ReactNode;
 };
 
 const ProtectedRoute = ({ allowedRoles, children }: ProtectedRouteProps) => {
-  const user=useSelector((state:RootState)=>state.user);
-  const dispatch=useDispatch();
+  const user = useSelector((state: RootState) => state.user);
+  const dispatch = useDispatch();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getUserDetails = async () => {
+    const fetchUser = async () => {
       try {
         const response = await getUserData();
         dispatch(login(response.user));
       } catch (error) {
-        console.error("Error fetching user details:", error);
+        console.error("Error fetching user data:", error);
+      } finally {
+        setLoading(false); // Ensure loading state is updated
       }
     };
-    if(!user){
-      getUserDetails();
-    }
-    
-    }
-  ,[user]);
 
-  useEffect(() => {
-    // Perform redirection logic after the component mounts
-    console.log("protected route",user);
-    if (!user) {
-      router.push("/login"); // Redirect to login if not authenticated
-    } else if (!allowedRoles.includes(user.role)) {
-      router.push("/unauthorized"); // Redirect to unauthorized if user role is not allowed
+    if (!user.role) {
+      fetchUser();
     } else {
-      setLoading(false); // Set loading to false if user is authenticated and authorized
+      setLoading(false);
     }
-  }, [user, allowedRoles, router]);
+  }, [user.role, dispatch]);
 
   if (loading) {
-    return null; // Prevent rendering content while checking auth/role
+    return <p>Loading...</p>; // Show a loading indicator instead of returning `null`
   }
 
-  return <>{children}</>;
+  if (!user.role) {
+    router.replace("/login");
+    return null;
+  }
+
+  if (!allowedRoles.includes(user.role)) {
+    router.replace("/unauthorized");
+    return null;
+  }
+
+  return children;
 };
 
 export default ProtectedRoute;

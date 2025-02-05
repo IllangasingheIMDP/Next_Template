@@ -10,9 +10,9 @@ export default function AdminLayout({
         
         
         
-            <Providers>
-               {children}
-            </Providers>
+            
+             <>{children}</>  
+           
             
             
             
