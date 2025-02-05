@@ -6,13 +6,15 @@ const PORT = process.env.PORT || 5000;
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 app.use(express.json());
+const helmet = require('helmet');
 //routes import
+const commonRoute = require('./routes/commonRoute');
 const AuthRoutes = require('./routes/AuthRoute');
-
+const AdminRoute = require('./routes/AdminRoute');
 
 //cors configuration
 
-const allowedOrigins = ['http://localhost:3001', 'http://localhost:5174', 'http://16.171.12.238', 'https://lpedu.lk'];
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:5174', 'http://16.171.12.238', 'https://lpedu.lk'];
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -23,7 +25,7 @@ app.use(cors({
   },
   credentials: true,// Allow credentials (cookies, etc.)
 }));
-
+app.use(helmet());
 
 //database check
 pool.getConnection()
@@ -37,7 +39,8 @@ pool.getConnection()
   });
 
 app.use('/api/auth', AuthRoutes);
-
+app.use('/api/admin', AdminRoute);
+app.use('/api/common',commonRoute);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

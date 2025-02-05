@@ -1,10 +1,40 @@
+
+
 require("dotenv").config();
 const UserModel = require("../model/UserModel");
 
 const jwt = require("jsonwebtoken");
 const { hashPassword, comparePassword } = require('../utils/hash');
-const AuthController = {
-    loginUser: async (req, res) => {
+const AdminController = {
+    getAllUsers:async(req,res)=>{
+        try {
+            const users=await UserModel.getAllUsers();
+            res.status(200).json(users);
+        } catch (error) {
+            res.status(500).json({ error: 'Failed to fetch users' });
+            console.log(error);
+        }
+    },
+    registerAdmin: async (req, res) => {
+        try {
+            const { username, email, password } = req.body;
+            // Check if user already exists
+            const existingUser = await UserModel.findByEmail(email);
+            if (existingUser) return res.status(400).json({ error: 'Username already taken' });
+
+            // Hash the password
+            const hashedPassword = await hashPassword(password);
+
+            // Save user to DB
+            await UserModel.createUser(username, email, hashedPassword,'Admin');
+
+            res.status(201).json({ message: 'Admin registered successfully' });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Registration failed' });
+        }
+    },
+    loginAdmin: async (req, res) => {
         try {
             const user = await UserModel.findByEmail(req.body.email);
             
@@ -52,7 +82,7 @@ const AuthController = {
             });
             // Send Access Token to client
             res.status(200).json({
-                message: "Student Login successful",
+                message: "Admin Login successful",
                 success: true,
                 accessTokenExpiresIn: 12 * 60 * 60,
                 user:{
@@ -65,43 +95,5 @@ const AuthController = {
             res.status(500).send({ message: `Error in login: ${error}` });
         }
     },
-    registerUser: async (req, res) => {
-        try {
-            const { username, email, password } = req.body;
-            // Check if user already exists
-            const existingUser = await UserModel.findByEmail(email);
-            if (existingUser) return res.status(400).json({ error: 'Username already taken' });
-
-            // Hash the password
-            const hashedPassword = await hashPassword(password);
-
-            // Save user to DB
-            await UserModel.createUser(username, email, hashedPassword,'User');
-
-            res.status(201).json({ message: 'User registered successfully' });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: 'Registration failed' });
-        }
-    },
-    getCookieDetail:async(req,res)=>{
-        try {
-            const token = req.cookies.accessToken; 
-            if (!token) {
-                return res.status(401).json({ message: "No token provided" });
-            }
-            const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-            res.status(200).json({
-                user: {
-                    username: decoded.username,
-                    email: decoded.email,
-                    role: decoded.userType //decoded.userType, // Assuming role is stored as userType
-                },
-            });
-        } catch (error) {
-            
-        }
-
-    }
-};
-module.exports = AuthController;
+}; 
+module.exports = AdminController;
