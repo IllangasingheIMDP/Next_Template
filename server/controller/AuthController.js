@@ -25,14 +25,14 @@ const AuthController = {
 
             // Generate Access Token (short-lived)
             const accessToken = jwt.sign(
-                { nic: user.nic, email: req.body.email, userType: "student" },
+                { username: user.username, email: req.body.email, userType: "student" },
                 process.env.ACCESS_TOKEN_SECRET,
                 { expiresIn: "12h" } // Expires in 12h
             );
 
             // Generate Refresh Token (long-lived)
             const refreshToken = jwt.sign(
-                { nic: user.nic, email: req.body.email, userType: "student" },
+                { username: user.username, email: req.body.email, userType: "student" },
                 process.env.REFRESH_TOKEN_SECRET,
                 { expiresIn: "7d" } // Expires in 7 days
             );
@@ -83,6 +83,25 @@ const AuthController = {
             console.error(error);
             res.status(500).json({ error: 'Registration failed' });
         }
+    },
+    getCookieDetail:async(req,res)=>{
+        try {
+            const token = req.cookies.accessToken; 
+            if (!token) {
+                return res.status(401).json({ message: "No token provided" });
+            }
+            const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+            res.status(200).json({
+                user: {
+                    username: decoded.username,
+                    email: decoded.email,
+                    role: "Admin" //decoded.userType, // Assuming role is stored as userType
+                },
+            });
+        } catch (error) {
+            
+        }
+
     }
 };
 module.exports = AuthController;

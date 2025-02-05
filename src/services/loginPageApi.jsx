@@ -16,3 +16,13 @@ export const register = async (username,email, password) => {
       throw new Error(error.response?.data?.error || "Registration failed");
     }
   }
+export const getUserData=async()=>{
+  try {
+    console.log('Getting user data')
+    const response=await api.get(`/common/userdata`);
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to fetch user data");
+  }
+}

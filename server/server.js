@@ -8,6 +8,7 @@ app.use(cookieParser());
 app.use(express.json());
 const helmet = require('helmet');
 //routes import
+const commonRoute = require('./routes/commonRoute');
 const AuthRoutes = require('./routes/AuthRoute');
 const AdminRoute = require('./routes/AdminRoute');
 
@@ -39,6 +40,7 @@ pool.getConnection()
 
 app.use('/api/auth', AuthRoutes);
 app.use('/api/admin', AdminRoute);
+app.use('/api/common',commonRoute);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

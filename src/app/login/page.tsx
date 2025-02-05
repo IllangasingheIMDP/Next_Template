@@ -3,11 +3,15 @@
 import { useState,useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { RootState } from "@/GlobalRedux/store";
+import { useSelector,useDispatch } from "react-redux";
+import { login } from "@/GlobalRedux/features/userSlice";
+import { loginUser } from "@/services/loginPageApi";
+
 
 import * as z from "zod";
-import axios from "axios";
-import { loginUser } from "@/services/loginPageApi";
-import { useAuth } from "@/context/AuthContext";
+
+
 const loginSchema = z.object({
   email: z.string().email("Invalid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -16,10 +20,11 @@ const loginSchema = z.object({
 type LoginFormInputs = z.infer<typeof loginSchema>;
 
 const LoginPage = () => {
+  const user=useSelector((state:RootState)=>state.user);
+  const dispatch=useDispatch();
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
-
+  
 
 
 
@@ -38,7 +43,7 @@ const LoginPage = () => {
 
     try {
       const response =await loginUser(data.email, data.password);
-      login(response.user);
+      dispatch(login(response.user));
       console.log("Login successful:", response.message);
       alert("Login successful! ✅");
     } catch (error: any) {

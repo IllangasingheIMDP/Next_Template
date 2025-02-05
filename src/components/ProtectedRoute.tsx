@@ -1,18 +1,38 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import api from "@/redux/api";
 import { useRouter } from "next/navigation";
-
+import { RootState } from "@/GlobalRedux/store";
+import { useSelector,useDispatch } from "react-redux";
+import { getUserData } from "@/services/loginPageApi";
+import { login } from "@/GlobalRedux/features/userSlice";
 type ProtectedRouteProps = {
   allowedRoles: string[];
   children: ReactNode;
 };
 
 const ProtectedRoute = ({ allowedRoles, children }: ProtectedRouteProps) => {
-  const { user } = useAuth();
+  const user=useSelector((state:RootState)=>state.user);
+  const dispatch=useDispatch();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getUserDetails = async () => {
+      try {
+        const response = await getUserData();
+        dispatch(login(response.user));
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      }
+    };
+    if(!user){
+      getUserDetails();
+    }
+    
+    }
+  ,[user]);
 
   useEffect(() => {
     // Perform redirection logic after the component mounts
